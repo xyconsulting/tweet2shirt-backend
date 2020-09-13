@@ -58,5 +58,5 @@ app.post("/price", async (req, res) => {
     res.json(price);
 });
 
-app.listen(process.env.PORT || 3000, 
+app.listen(process.env.PORT || 4242, 
 	() => console.log("Server is running..."));
