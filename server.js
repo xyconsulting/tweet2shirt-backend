@@ -6,9 +6,6 @@ const app = express();
 
 const stripe = require('stripe')(process.env.STRIPE_TEST_SECRET_KEY);
 
-app.get('/', (req, res) => {
-    res.send("Yo this worked");
-});
 app.use(express.json());
 app.use(cors());
 
@@ -21,31 +18,20 @@ app.post("/create-checkout-session", async (req, res) => {
         payment_method_types: ["card"],
         line_items: [
             {
-                price_data: {
-                    currency: "usd",
-                    product_data: {
-                        name: req.body.name,
-                        images:[
-                            req.body.mockup
-                        ]
-                    },
-                    unit_amount: 2000,
-                },
+                price:req.body.id,
                 quantity: 1,
             },
         ],
         payment_intent_data: {
             metadata: {
-                id: req.body.id,
-                image: req.body.mockup,
-                variant: 4013
+                image: req.body.product.images[1],
+                variant: req.body.size
             },
         },
         mode: "payment",
-        success_url: "http://localhost:3000/123456",
-        cancel_url: "http://localhost:3000/123456",
+        success_url: "http://localhost:3000/thanks",
+        cancel_url: `http://localhost:3000/product/${req.body.id}`,
     });
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
     res.json({ id: session.id });
 });
 
@@ -55,13 +41,7 @@ app.post("/create-payment-intent", async (req, res) => {
         currency: 'usd',
         // Verify your integration in this guide by including this parameter
         metadata: {
-            name:req.body.name,
-            email:req.body.email,
-            address:req.body.address,
-            city:req.body.city,
-            state:req.body.state,
             size:req.body.size,
-            zipcode:req.body.zipcode,
             image:req.body.image
         },
     });
@@ -69,10 +49,13 @@ app.post("/create-payment-intent", async (req, res) => {
     res.json({'secret':intent.client_secret});
 });
 
-app.post("/product", async (req, res) => {
-    const productId = req.body.id;
-    const product = await stripe.products.retrieve(productId);
-    res.json(product);
+app.post("/price", async (req, res) => {
+    const priceId = req.body.id;
+    const price = await stripe.prices.retrieve(priceId, {
+        expand: ['product']
+    });
+    console.log(price)
+    res.json(price);
 });
 
 app.listen(4242, () => console.log("running on http://localhost:4242"));
