@@ -58,4 +58,4 @@ app.post("/price", async (req, res) => {
     res.json(price);
 });
 
-app.listen(4242, () => console.log("running on http://localhost:4242"));
+app.listen(3000, () => console.log("server running"));
