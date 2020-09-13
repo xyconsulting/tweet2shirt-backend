@@ -7,7 +7,7 @@ const app = express();
 const stripe = require('stripe')(process.env.STRIPE_TEST_SECRET_KEY);
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({origin:true,credentials: true}));
 
 app.post("/create-checkout-session", async (req, res) => {
     const session = await stripe.checkout.sessions.create({
